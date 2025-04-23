@@ -68,6 +68,10 @@ export const serviceSheets = pgTable("service_sheets", {
   serviceType: text("service_type").notNull(), // maintenance, repair, installation, inspection
   equipmentType: text("equipment_type").notNull(),
   checklist: jsonb("checklist").notNull(), // Array of items to check with status
+  technicianSignature: text("technician_signature"),
+  customerSignature: text("customer_signature"),
+  customerName: text("customer_name"),
+  completionDate: timestamp("completion_date"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -77,6 +81,10 @@ export const insertServiceSheetSchema = createInsertSchema(serviceSheets).pick({
   serviceType: true,
   equipmentType: true,
   checklist: true,
+  technicianSignature: true,
+  customerSignature: true,
+  customerName: true,
+  completionDate: true,
 });
 
 // Task Notes
@@ -85,6 +93,9 @@ export const notes = pgTable("notes", {
   taskId: integer("task_id").notNull(),
   userId: integer("user_id").notNull(),
   content: text("content").notNull(),
+  noteType: text("note_type").default("text").notNull(), // text, voice
+  voiceRecordingUrl: text("voice_recording_url"),
+  duration: integer("duration"), // For voice notes, in seconds
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -92,6 +103,9 @@ export const insertNoteSchema = createInsertSchema(notes).pick({
   taskId: true,
   userId: true,
   content: true,
+  noteType: true,
+  voiceRecordingUrl: true,
+  duration: true,
 });
 
 // Photos attached to tasks

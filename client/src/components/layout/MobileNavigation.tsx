@@ -34,7 +34,7 @@ export default function MobileNavigation() {
   const todaysTasks = 5;
   
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-neutral-200">
+    <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-neutral-200">
       <div className="flex justify-around">
         <NavItem 
           href="/" 
@@ -53,7 +53,7 @@ export default function MobileNavigation() {
           <div className="h-12 w-12 rounded-full bg-primary-600 flex items-center justify-center -mt-8 shadow-lg">
             <Plus className="h-6 w-6 text-white" />
           </div>
-          <span className="text-xs mt-1">Add</span>
+          <span className="text-xs mt-1">Add Task</span>
         </Link>
         <NavItem 
           href="/timesheets" 
@@ -75,25 +75,28 @@ export default function MobileNavigation() {
             } 
           />
           
-          <div className="invisible group-hover:visible absolute bottom-full right-0 mb-2 w-48 bg-white rounded-lg shadow-lg border border-neutral-200 py-2">
-            <Link href="/products" className="flex items-center px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">
-              <Package2 className="h-4 w-4 mr-2 text-neutral-500" />
-              Materials
+          <div className="invisible group-hover:visible md:group-hover:flex md:group-hover:flex-col absolute bottom-full right-0 mb-2 w-48 md:w-56 bg-white rounded-lg shadow-lg border border-neutral-200 py-2">
+            <div className="hidden md:block px-4 py-2 border-b border-neutral-100 mb-1">
+              <h3 className="font-medium text-neutral-800">Technician Tools</h3>
+            </div>
+            <Link href="/products" className="flex items-center px-4 py-3 text-sm text-neutral-700 hover:bg-neutral-50">
+              <Package2 className="h-5 w-5 mr-3 text-neutral-500" />
+              <span>Materials & Inventory</span>
             </Link>
-            <Link href="/photos" className="flex items-center px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">
-              <Camera className="h-4 w-4 mr-2 text-neutral-500" />
-              Photos
+            <Link href="/photos" className="flex items-center px-4 py-3 text-sm text-neutral-700 hover:bg-neutral-50">
+              <Camera className="h-5 w-5 mr-3 text-neutral-500" />
+              <span>Photos</span>
             </Link>
-            <Link href="/service-sheets" className="flex items-center px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">
-              <FileCog className="h-4 w-4 mr-2 text-neutral-500" />
-              Service Sheets
+            <Link href="/service-sheets" className="flex items-center px-4 py-3 text-sm text-neutral-700 hover:bg-neutral-50">
+              <FileCog className="h-5 w-5 mr-3 text-neutral-500" />
+              <span>Service Sheets</span>
             </Link>
             
             <div className="border-t border-neutral-200 my-1"></div>
             
-            <Link href="tel:+18005551234" className="flex items-center px-4 py-2 text-sm text-orange-600 hover:bg-orange-50">
-              <Phone className="h-4 w-4 mr-2" />
-              Call Support
+            <Link href="tel:+18005551234" className="flex items-center px-4 py-3 text-sm text-orange-600 hover:bg-orange-50">
+              <Phone className="h-5 w-5 mr-3" />
+              <span>Call Tech Support</span>
             </Link>
           </div>
         </div>

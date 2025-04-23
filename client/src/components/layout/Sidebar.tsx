@@ -61,7 +61,7 @@ export default function Sidebar() {
   return (
     <aside 
       id="sidebar" 
-      className="hidden md:block w-64 bg-white border-r border-neutral-200 overflow-y-auto"
+      className="hidden lg:block w-64 bg-white border-r border-neutral-200 overflow-y-auto"
     >
       <div className="p-4 border-b border-neutral-200 flex items-center justify-between">
         <h1 className="text-xl font-semibold text-primary-600">FieldServe Pro</h1>

@@ -16,7 +16,10 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Loader2, FileCheck, FilePenLine } from "lucide-react";
+import SignaturePad from "@/components/common/SignaturePad";
+import { saveTaskPDF } from "@/lib/utils/pdf-generator";
 
 type ServiceSheetProps = {
   taskId: number;

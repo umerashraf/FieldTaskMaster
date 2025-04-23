@@ -39,6 +39,7 @@ function Router() {
             <Route path="/tasks/:id" component={TaskDetail} />
             <Route path="/timesheets" component={Timesheets} />
             <Route path="/products" component={Products} />
+            <Route path="/calendar" component={Calendar} />
             {/* Fallback to 404 */}
             <Route component={NotFound} />
           </Switch>

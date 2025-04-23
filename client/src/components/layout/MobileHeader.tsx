@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useAppContext } from "@/lib/context/AppContext";
-import { Bell, Menu } from "lucide-react";
+import { Menu } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import Notifications from "./Notifications";
 
 export default function MobileHeader() {
   const { user } = useAppContext();
@@ -52,10 +53,7 @@ export default function MobileHeader() {
         </div>
       </div>
       <div className="flex items-center space-x-3">
-        <button className="text-neutral-600 relative">
-          <Bell className="h-6 w-6" />
-          <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-primary-600 text-white text-xs flex items-center justify-center">2</span>
-        </button>
+        <Notifications />
         <div className="hidden md:flex items-center border-l border-neutral-200 ml-3 pl-3">
           <div className="text-right mr-2">
             <p className="text-sm font-medium">{user?.name}</p>

@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Home, ClipboardList, Clock, Plus, Package2, Camera, FileCog, Phone } from "lucide-react";
+import { Home, ClipboardList, Clock, Plus, Package2, Camera, FileCog, Phone, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 
@@ -90,6 +90,10 @@ export default function MobileNavigation() {
             <Link href="/service-sheets" className="flex items-center px-4 py-3 text-sm text-neutral-700 hover:bg-neutral-50">
               <FileCog className="h-5 w-5 mr-3 text-neutral-500" />
               <span>Service Sheets</span>
+            </Link>
+            <Link href="/calendar" className="flex items-center px-4 py-3 text-sm text-neutral-700 hover:bg-neutral-50">
+              <Calendar className="h-5 w-5 mr-3 text-neutral-500" />
+              <span>Calendar</span>
             </Link>
             
             <div className="border-t border-neutral-200 my-1"></div>

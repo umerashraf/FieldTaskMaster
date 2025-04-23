@@ -11,7 +11,8 @@ import {
   Camera,
   FileCheck,
   Wrench,
-  Phone
+  Phone,
+  Calendar
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useAppContext } from "@/lib/context/AppContext";
@@ -104,6 +105,12 @@ export default function Sidebar() {
           icon={<Clock className="h-5 w-5" />} 
           label="Time Tracking" 
           active={location.startsWith("/timesheets")} 
+        />
+        <NavItem 
+          to="/calendar" 
+          icon={<Calendar className="h-5 w-5" />} 
+          label="Calendar" 
+          active={location.startsWith("/calendar")} 
         />
         
         <div className="px-4 mt-6 mb-2 text-xs font-semibold text-neutral-500 uppercase tracking-wider">

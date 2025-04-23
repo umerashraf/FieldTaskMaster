@@ -1,7 +1,27 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { Task, ServiceSheet, Timesheet, Note, Photo, ProductUsage, Product } from '@shared/schema';
-import { formatDate, formatTime, formatDuration } from './date-utils';
+import { format } from 'date-fns';
+
+// Simple date formatting functions for the PDF
+const formatDate = (date: Date | string | null | undefined): string => {
+  if (!date) return 'N/A';
+  return typeof date === 'string' ? format(new Date(date), 'MMM d, yyyy') : format(date, 'MMM d, yyyy');
+};
+
+const formatTime = (date: Date | string | null | undefined): string => {
+  if (!date) return 'N/A';
+  return typeof date === 'string' ? format(new Date(date), 'h:mm a') : format(date, 'h:mm a');
+};
+
+const formatDuration = (minutes: number): string => {
+  if (minutes === 0) return '0m';
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  if (hours === 0) return `${mins}m`;
+  if (mins === 0) return `${hours}h`;
+  return `${hours}h ${mins}m`;
+};
 
 // Type for task details with related data
 type TaskWithDetails = Task & {

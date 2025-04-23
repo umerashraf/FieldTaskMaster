@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -62,21 +62,34 @@ export default function ServiceSheet({ taskId }: ServiceSheetProps) {
   const [serviceType, setServiceType] = useState("maintenance");
   const [equipmentType, setEquipmentType] = useState("hvac");
   const [checklist, setChecklist] = useState<ChecklistItem[]>(defaultChecklist);
+  const [techSignature, setTechSignature] = useState<string | null>(null);
+  const [custSignature, setCustSignature] = useState<string | null>(null);
+  const [customerName, setCustomerName] = useState<string>("");
+  const [showPrintModal, setShowPrintModal] = useState(false);
+  const [showSignatures, setShowSignatures] = useState(false);
 
   // Get existing service sheet if available
   const { data: serviceSheet, isLoading } = useQuery<ServiceSheetType>({
-    queryKey: [`/api/tasks/${taskId}/service-sheet`],
-    onSuccess: (data) => {
-      if (data) {
-        setServiceType(data.serviceType);
-        setEquipmentType(data.equipmentType);
-        setChecklist(data.checklist as ChecklistItem[]);
-      }
-    },
-    onError: () => {
-      // Service sheet might not exist yet, which is fine
-    }
+    queryKey: [`/api/tasks/${taskId}/service-sheet`]
   });
+  
+  // Use effect to populate form data when service sheet is loaded
+  React.useEffect(() => {
+    if (serviceSheet) {
+      setServiceType(serviceSheet.serviceType);
+      setEquipmentType(serviceSheet.equipmentType);
+      setChecklist(serviceSheet.checklist as ChecklistItem[]);
+      if (serviceSheet.technicianSignature) {
+        setTechSignature(serviceSheet.technicianSignature);
+      }
+      if (serviceSheet.customerSignature) {
+        setCustSignature(serviceSheet.customerSignature);
+      }
+      if (serviceSheet.customerName) {
+        setCustomerName(serviceSheet.customerName);
+      }
+    }
+  }, [serviceSheet]);
 
   // Create service sheet
   const createServiceSheet = useMutation({
@@ -152,7 +165,93 @@ export default function ServiceSheet({ taskId }: ServiceSheetProps) {
     ));
   };
 
-  const isPending = createServiceSheet.isPending || updateServiceSheet.isPending;
+  // Save signatures
+  const updateSignatures = useMutation({
+    mutationFn: async (data: { 
+      id: number;
+      technicianSignature?: string | null;
+      customerSignature?: string | null;
+      customerName?: string | null;
+    }) => {
+      const response = await apiRequest('PATCH', `/api/service-sheets/${data.id}`, data);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/tasks/${taskId}/service-sheet`] });
+      toast({
+        title: "Signatures saved",
+        description: "The signatures have been saved successfully.",
+      });
+      setShowSignatures(false);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to save signatures.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Handle signature save
+  const handleSaveSignatures = () => {
+    if (serviceSheet) {
+      updateSignatures.mutate({
+        id: serviceSheet.id,
+        technicianSignature: techSignature,
+        customerSignature: custSignature,
+        customerName: customerName || null
+      });
+    } else {
+      toast({
+        title: "Error",
+        description: "Please save the service sheet first before adding signatures.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Generate PDF
+  const handleGeneratePDF = async () => {
+    if (!serviceSheet) {
+      toast({
+        title: "Error",
+        description: "Please save the service sheet first before generating a PDF.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    try {
+      // Get task details
+      const taskRes = await fetch(`/api/tasks/${taskId}`);
+      if (!taskRes.ok) throw new Error("Failed to fetch task details");
+      
+      const task = await taskRes.json();
+      
+      // Add service sheet to task
+      task.serviceSheet = {
+        ...serviceSheet,
+        checklist: checklist,
+      };
+      
+      // Generate PDF
+      saveTaskPDF(task);
+      
+      toast({
+        title: "PDF Generated",
+        description: "The service report has been downloaded successfully.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to generate PDF.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const isPending = createServiceSheet.isPending || updateServiceSheet.isPending || updateSignatures.isPending;
 
   if (isLoading) {
     return (
@@ -234,16 +333,110 @@ export default function ServiceSheet({ taskId }: ServiceSheetProps) {
             </div>
           </div>
           
-          <div className="mt-4">
+          <div className="mt-4 flex flex-wrap gap-2">
             <Button
               onClick={handleSaveServiceSheet}
               disabled={isPending}
-              className="w-full sm:w-auto"
+              className="sm:w-auto"
             >
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {serviceSheet ? "Update Service Sheet" : "Create Service Sheet"}
             </Button>
+            
+            {serviceSheet && (
+              <>
+                <Button
+                  onClick={() => setShowSignatures(!showSignatures)}
+                  variant="outline"
+                  className="sm:w-auto flex items-center"
+                  type="button"
+                >
+                  <FilePenLine className="h-4 w-4 mr-2" />
+                  {techSignature || custSignature ? "Edit Signatures" : "Add Signatures"}
+                </Button>
+                
+                <Button
+                  onClick={handleGeneratePDF}
+                  variant="outline"
+                  className="sm:w-auto flex items-center"
+                  type="button"
+                >
+                  <FileCheck className="h-4 w-4 mr-2" />
+                  Generate PDF
+                </Button>
+              </>
+            )}
           </div>
+          
+          {showSignatures && serviceSheet && (
+            <div className="mt-6 border-t border-gray-200 pt-4">
+              <h4 className="text-sm font-medium text-neutral-700 mb-4">Signatures</h4>
+              
+              <div className="space-y-6">
+                <div>
+                  <h5 className="text-sm font-medium text-neutral-700 mb-2">Technician Signature</h5>
+                  <SignaturePad
+                    onSave={(signature) => setTechSignature(signature)}
+                    width={400}
+                    height={150}
+                  />
+                  {techSignature && (
+                    <div className="mt-2">
+                      <img 
+                        src={techSignature} 
+                        alt="Technician Signature" 
+                        className="border border-gray-300 rounded-md max-h-24"
+                      />
+                    </div>
+                  )}
+                </div>
+                
+                <div>
+                  <h5 className="text-sm font-medium text-neutral-700 mb-2">Customer Information</h5>
+                  <div className="mb-4">
+                    <label htmlFor="customerName" className="block text-sm text-neutral-600 mb-1">
+                      Customer Name
+                    </label>
+                    <Input
+                      id="customerName"
+                      value={customerName}
+                      onChange={(e) => setCustomerName(e.target.value)}
+                      className="max-w-md"
+                    />
+                  </div>
+                  
+                  <h5 className="text-sm font-medium text-neutral-700 mb-2">Customer Signature</h5>
+                  <SignaturePad
+                    onSave={(signature) => setCustSignature(signature)}
+                    width={400}
+                    height={150}
+                  />
+                  {custSignature && (
+                    <div className="mt-2">
+                      <img 
+                        src={custSignature} 
+                        alt="Customer Signature" 
+                        className="border border-gray-300 rounded-md max-h-24"
+                      />
+                    </div>
+                  )}
+                </div>
+                
+                <div>
+                  <Button
+                    onClick={handleSaveSignatures}
+                    disabled={isPending}
+                    className="w-full sm:w-auto"
+                  >
+                    {updateSignatures.isPending && (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    )}
+                    Save Signatures
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

@@ -19,9 +19,9 @@ export default function VoiceRecorder({ onSave }: VoiceRecorderProps) {
     stopRecording,
     mediaBlobUrl,
     clearBlobUrl
-  } = useMediaRecorder({
+  } = useReactMediaRecorder({
     audio: true,
-    onStop: (blobUrl, blob) => {
+    onStop: (blobUrl: string, blob: Blob) => {
       // Create audio element to get duration
       const audio = new Audio(blobUrl);
       audio.onloadedmetadata = () => {

@@ -1,17 +1,24 @@
 import { Link, useLocation } from "wouter";
-import { Home, ClipboardList, Clock, Plus, MoreHorizontal } from "lucide-react";
+import { Home, ClipboardList, Clock, Plus, Package2, Camera, FileCog, Phone } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 
 type NavItemProps = {
   href: string;
   icon: React.ReactNode;
   label: string;
   active?: boolean;
+  badge?: number;
 };
 
-const NavItem = ({ href, icon, label, active }: NavItemProps) => {
+const NavItem = ({ href, icon, label, active, badge }: NavItemProps) => {
   return (
-    <Link href={href} className="flex flex-col items-center p-3 text-neutral-600">
+    <Link href={href} className="flex flex-col items-center p-3 text-neutral-600 relative">
+      {badge !== undefined && badge > 0 && (
+        <Badge variant="default" className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center bg-primary-600 text-white">
+          {badge}
+        </Badge>
+      )}
       <div className={cn(active && "text-primary-600")}>
         {icon}
       </div>
@@ -23,26 +30,30 @@ const NavItem = ({ href, icon, label, active }: NavItemProps) => {
 export default function MobileNavigation() {
   const [location] = useLocation();
   
+  // This would come from a real API in production
+  const todaysTasks = 5;
+  
   return (
     <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-neutral-200">
       <div className="flex justify-around">
         <NavItem 
           href="/" 
           icon={<Home className="h-6 w-6" />} 
-          label="Dashboard" 
+          label="Home" 
           active={location === "/" || location === ""} 
         />
         <NavItem 
           href="/tasks" 
           icon={<ClipboardList className="h-6 w-6" />} 
           label="Tasks" 
+          badge={todaysTasks}
           active={location.startsWith("/tasks")} 
         />
         <Link href="/tasks/new" className="flex flex-col items-center p-3 text-neutral-600">
           <div className="h-12 w-12 rounded-full bg-primary-600 flex items-center justify-center -mt-8 shadow-lg">
             <Plus className="h-6 w-6 text-white" />
           </div>
-          <span className="text-xs mt-1">New</span>
+          <span className="text-xs mt-1">Add</span>
         </Link>
         <NavItem 
           href="/timesheets" 
@@ -50,12 +61,42 @@ export default function MobileNavigation() {
           label="Time" 
           active={location.startsWith("/timesheets")} 
         />
-        <NavItem 
-          href="/products" 
-          icon={<MoreHorizontal className="h-6 w-6" />} 
-          label="More" 
-          active={location.startsWith("/products")} 
-        />
+        
+        {/* Popup menu for more options that are relevant to technicians */}
+        <div className="group relative">
+          <NavItem 
+            href="#" 
+            icon={<FileCog className="h-6 w-6" />} 
+            label="Tools" 
+            active={
+              location.startsWith("/products") || 
+              location.startsWith("/photos") || 
+              location.startsWith("/service-sheets")
+            } 
+          />
+          
+          <div className="invisible group-hover:visible absolute bottom-full right-0 mb-2 w-48 bg-white rounded-lg shadow-lg border border-neutral-200 py-2">
+            <Link href="/products" className="flex items-center px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">
+              <Package2 className="h-4 w-4 mr-2 text-neutral-500" />
+              Materials
+            </Link>
+            <Link href="/photos" className="flex items-center px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">
+              <Camera className="h-4 w-4 mr-2 text-neutral-500" />
+              Photos
+            </Link>
+            <Link href="/service-sheets" className="flex items-center px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">
+              <FileCog className="h-4 w-4 mr-2 text-neutral-500" />
+              Service Sheets
+            </Link>
+            
+            <div className="border-t border-neutral-200 my-1"></div>
+            
+            <Link href="tel:+18005551234" className="flex items-center px-4 py-2 text-sm text-orange-600 hover:bg-orange-50">
+              <Phone className="h-4 w-4 mr-2" />
+              Call Support
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   );

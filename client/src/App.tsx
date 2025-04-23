@@ -12,9 +12,11 @@ import EditTask from "@/pages/EditTask";
 import TaskDetail from "@/pages/TaskDetail";
 import Timesheets from "@/pages/Timesheets";
 import Products from "@/pages/Products";
+import Calendar from "@/pages/Calendar";
 import Sidebar from "@/components/layout/Sidebar";
 import MobileHeader from "@/components/layout/MobileHeader";
 import MobileNavigation from "@/components/layout/MobileNavigation";
+import Notifications from "@/components/layout/Notifications";
 import { ThemeProvider } from "next-themes";
 import { useState, useEffect } from "react";
 

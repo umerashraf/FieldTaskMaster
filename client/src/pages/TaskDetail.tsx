@@ -9,7 +9,9 @@ import {
   Tag, 
   Users,
   ArrowLeft,
-  Edit
+  Edit,
+  Navigation,
+  Phone
 } from "lucide-react";
 import { Task, Note, Photo, ProductUsage, Timesheet, ServiceSheet } from "@shared/schema";
 import { Button } from "@/components/ui/button";
@@ -169,6 +171,20 @@ export default function TaskDetail() {
                         <p className="text-sm font-medium">Location</p>
                         <p className="text-sm text-neutral-600">{task.locationName}</p>
                         <p className="text-sm text-neutral-600">{task.locationAddress}</p>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="mt-2 flex items-center text-primary-600"
+                          onClick={() => {
+                            // Encode the address for Google Maps URL
+                            const encodedAddress = encodeURIComponent(task.locationAddress);
+                            // Open Google Maps with the location
+                            window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, '_blank');
+                          }}
+                        >
+                          <Navigation className="h-4 w-4 mr-1" />
+                          Navigate
+                        </Button>
                       </div>
                     </div>
                     
@@ -240,6 +256,34 @@ export default function TaskDetail() {
                         <div>
                           <p className="text-sm font-medium">Client</p>
                           <p className="text-sm text-neutral-600">{task.client.name}</p>
+                          
+                          {/* Fetch client details to get the phone */}
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="mt-2 flex items-center text-primary-600"
+                            onClick={async () => {
+                              try {
+                                // Fetch client details including phone number
+                                const res = await fetch(`/api/clients/${task.client?.id}`);
+                                if (!res.ok) throw new Error("Failed to get client details");
+                                
+                                const client = await res.json();
+                                if (client && client.phone) {
+                                  // Use tel: protocol to initiate a phone call
+                                  window.open(`tel:${client.phone}`, '_self');
+                                } else {
+                                  alert("No phone number available for this client");
+                                }
+                              } catch (error) {
+                                console.error("Error fetching client details:", error);
+                                alert("Could not retrieve client phone information");
+                              }
+                            }}
+                          >
+                            <Phone className="h-4 w-4 mr-1" />
+                            Call Client
+                          </Button>
                         </div>
                       </div>
                     )}

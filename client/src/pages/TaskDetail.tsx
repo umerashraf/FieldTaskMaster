@@ -1,5 +1,5 @@
 import { useParams, useLocation } from "wouter";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTitle } from "@/lib/hooks/useTitle";
 import { format } from "date-fns";
 import { 
@@ -11,8 +11,12 @@ import {
   ArrowLeft,
   Edit,
   Navigation,
-  Phone
+  Phone,
+  CheckCircle,
+  RefreshCw
 } from "lucide-react";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import { Task, Note, Photo, ProductUsage, Timesheet, ServiceSheet } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -47,11 +51,42 @@ export default function TaskDetail() {
   const { id } = useParams<{ id: string }>();
   const [, navigate] = useLocation();
   const taskId = parseInt(id);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   // Fetch task details
   const { data: task, isLoading, error } = useQuery<TaskWithDetails>({
     queryKey: [`/api/tasks/${taskId}`],
   });
+
+  // Update task status mutation
+  const updateTaskStatus = useMutation({
+    mutationFn: async (status: string) => {
+      const response = await apiRequest('PATCH', `/api/tasks/${taskId}`, { status });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/tasks/${taskId}`] });
+      queryClient.invalidateQueries({ queryKey: ['/api/tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/dashboard/stats'] });
+      toast({
+        title: "Task updated",
+        description: "The task status has been updated successfully.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update task status.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Handle status change
+  const handleStatusChange = (status: string) => {
+    updateTaskStatus.mutate(status);
+  };
 
   useTitle(task ? `${task.title} | Task Details` : "Task Details");
 

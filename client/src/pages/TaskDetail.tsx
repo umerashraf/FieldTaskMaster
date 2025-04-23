@@ -176,6 +176,26 @@ export default function TaskDetail() {
             <Edit className="h-4 w-4 mr-1" />
             Edit Task
           </Button>
+          
+          {task.status !== "completed" ? (
+            <Button 
+              variant="default" 
+              className="flex items-center bg-green-600 hover:bg-green-700"
+              onClick={() => handleStatusChange("completed")}
+            >
+              <CheckCircle className="h-4 w-4 mr-1" />
+              Mark Complete
+            </Button>
+          ) : (
+            <Button 
+              variant="outline" 
+              className="flex items-center border-amber-600 text-amber-600 hover:bg-amber-50"
+              onClick={() => handleStatusChange("in_progress")}
+            >
+              <RefreshCw className="h-4 w-4 mr-1" />
+              Reopen Task
+            </Button>
+          )}
         </div>
       </div>
 
